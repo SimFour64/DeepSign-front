@@ -13,6 +13,11 @@ st.set_page_config(
 """
 # 🎥 Capture your sign and evaluate it!
 
+#### How to use it
+    0️⃣ Click on "Start capturing (if needed)
+    1️⃣ Do the sign in the blue box
+    2️⃣ Click on "Pause capturing"
+    3️⃣ Click on "Evaluate!"
 """
 
 
@@ -37,4 +42,9 @@ if c[1].button("Evaluate!"):
     std_dim = (height, width)
     resized_img = cv2.resize(cropped_img, std_dim)
     c[1].image(resized_img)
-    c[1].write(resized_img.shape)
+
+    ######################################
+    #  PLACEHOLDER: CODE TO SEND TO API  #
+    ######################################
+    pred = "Hello_test"
+    c[1].write(f"Prediction: {pred}")
