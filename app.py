@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-
+import requests
 
 # Define the base URI of the API
 #   - Potential sources are in `.streamlit/secrets.toml` or in the Secrets section
@@ -23,16 +23,25 @@ st.markdown("Now, the rest is up to you. Start creating your page.")
 
 
 # TODO: Add some titles, introduction, ...
-
+st.title("DeepSign — Démo de prédiction")
 
 # TODO: Request user input
-
+input_one = st.number_input("Valeur input_one", value=5.0)
+input_two = st.number_input("Valeur input_two", value=10.0)
 
 # TODO: Call the API using the user's input
 #   - url is already defined above
 #   - create a params dict based on the user's input
 #   - finally call your API using the requests package
+if st.button("Obtenir la prédiction"):
+    params = {"input_one": input_one, "input_two": input_two}
+    response = requests.get(url, params=params)
 
+    if response.status_code == 200:
+        prediction = response.json()["prediction"]
+        st.success(f"✅ La prédiction est : **{prediction}**")
+    else:
+        st.error(f"Erreur API : {response.status_code}")
 
 # TODO: retrieve the results
 #   - add a little check if you got an ok response (status code 200) or something else
