@@ -5,6 +5,7 @@
 
 # Sreamlit and extensions
 streamlit
+streamlit-camera-input-live
 requests
 
 
@@ -13,3 +14,6 @@ requests
 
 # Data science
 # pandas
+
+# openCV
+opencv-python
