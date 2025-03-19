@@ -65,10 +65,9 @@ uploaded_image = st.file_uploader("Choisissez une image à télécharger", type=
 
 if uploaded_image is not None:
     st.image(uploaded_image, caption="Image téléchargée", use_container_width=True)
-    image_bytes = uploaded_image.read()
 
     if st.button("Envoyer l'image pour analyse"):
-        response = requests.post(url_upload_image_preprod, files={"file": ("image.jpg", image_bytes, "image/jpeg")})
+        response = requests.post(url_upload_image_preprod, files={"img": uploaded_image})
 
         if response.status_code == 200:
             data = response.json()
