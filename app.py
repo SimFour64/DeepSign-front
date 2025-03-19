@@ -15,6 +15,7 @@ else:
 BASE_URI = BASE_URI if BASE_URI.endswith('/') else BASE_URI + '/'
 # Define the url to be used by requests.get to get a prediction (adapt if needed)
 url = BASE_URI + 'predict'
+url_upload_image_preprod = BASE_URI + 'upload_image_preprod'
 
 # Just displaying the source for the API. Remove this in your final version.
 st.markdown(f"Working with {url}")
@@ -55,3 +56,23 @@ if st.button("Obtenir la prédiction"):
 #   - some statistical data you collected in graphs
 #   - description of your product
 #   - a 'Who are we?'-page
+
+# UPLOAD IMAGE
+
+st.title("DeepSign — Upload manuel d'image et récupération des informations")
+st.markdown(f"Working with {url_upload_image_preprod}")
+uploaded_image = st.file_uploader("Choisissez une image à télécharger", type=["jpg", "jpeg", "png"])
+
+if uploaded_image is not None:
+    st.image(uploaded_image, caption="Image téléchargée", use_container_width=True)
+    image_bytes = uploaded_image.read()
+
+    if st.button("Envoyer l'image pour analyse"):
+        response = requests.post(url_upload_image_preprod, files={"file": ("image.jpg", image_bytes, "image/jpeg")})
+
+        if response.status_code == 200:
+            data = response.json()
+            st.success(f"Nom de l'image : {data['filename']}")
+            st.success(f"Taille de l'image : {data['image_size']} pixels")
+        else:
+            st.error(f"Erreur API : {response.status_code}")
