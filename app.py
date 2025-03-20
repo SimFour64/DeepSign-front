@@ -1,6 +1,9 @@
 import os
 import streamlit as st
 import requests
+import numpy as np
+import cv2
+from camera_input_live import camera_input_live
 
 # Define the base URI of the API
 #   - Potential sources are in `.streamlit/secrets.toml` or in the Secrets section
@@ -75,3 +78,41 @@ if uploaded_image is not None:
             st.success(f"Taille de l'image : {data['image_size']} pixels")
         else:
             st.error(f"Erreur API : {response.status_code}")
+
+
+# UPLOAD IMAGE FROM CAMERA + OPENCV
+st.title("DeepSign — Upload via webcam et OpenCV et récupération des infos")
+st.markdown(f"Working with {url_upload_image_preprod}")
+
+c = st.columns(2)
+with c[0].container():
+    image = camera_input_live()
+
+    if image:
+        # Image treatment to display back to the user with target rectangle
+        bytes_data = image.getvalue()
+        input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+        colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
+        flipped_img = cv2.flip(colored_img, 1)
+        annot_img = cv2.rectangle(flipped_img, (200,200), (500,500), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+        st.image(annot_img)
+
+if c[1].button("Evaluate!"):
+    # Once the user hits "Evaluate" button, the "pause" image is treated and sent to API
+    cropped_img = cv2.flip(colored_img[200:500,200:500],1)
+    height = 128
+    width = 128
+    std_dim = (height, width)
+    resized_img = cv2.resize(cropped_img, std_dim)
+
+    if image is not None:
+        c[1].image(resized_img, caption="Image téléchargée", use_container_width=True)
+        # !! The image sent to the API is the "raw" (not treated by OpenCV)
+        response = requests.post(url_upload_image_preprod, files={"img": image})
+
+        if response.status_code == 200:
+            data = response.json()
+            c[1].success(f"Nom de l'image : {data['filename']}")
+            c[1].success(f"Taille de l'image : {data['image_size']} pixels")
+        else:
+            c[1].error(f"Erreur API : {response.status_code}")
