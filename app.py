@@ -19,12 +19,148 @@ BASE_URI = BASE_URI if BASE_URI.endswith('/') else BASE_URI + '/'
 # Define the url to be used by requests.get to get a prediction (adapt if needed)
 url = BASE_URI + 'predict'
 url_upload_image_preprod = BASE_URI + 'upload_image_preprod'
+url_get_image_prediction_from_gcp_model_5 = BASE_URI + 'get_image_prediction_from_gcp_model_5'
+url_get_image_prediction_from_gcp_model_full = BASE_URI + 'get_image_prediction_from_gcp_model_full'
 url_get_image_prediction = BASE_URI + 'get_image_prediction'
 
 # Just displaying the source for the API. Remove this in your final version.
 st.markdown(f"Working with {url}")
 
-st.markdown("Now, the rest is up to you. Start creating your page.")
+
+
+######################################################
+#        SELECT AND USE MODEL FROM GCP
+######################################################
+
+
+def get_available_models():
+    response = requests.get(f"{BASE_URI}/models")  # Endpoint pour récupérer les modèles
+    if response.status_code == 200:
+        return response.json()['models']
+    else:
+        st.error(f"Erreur lors de la récupération des modèles : {response.status_code}")
+        return []
+
+##### 5 CLASSES  #####
+st.title("DeepSign — Upload via webcam et OpenCV et predict avec le model GCP 5 CLASSES")
+st.markdown(f"Working with {url_get_image_prediction_from_gcp_model_5}")
+
+all_gcp_models = get_available_models()
+
+filtered_models_5 = [m for m in all_gcp_models if "5classes/" in m and m.endswith(".keras")]
+
+if filtered_models_5:
+    models_dict = {m.split('/')[-1]: m for m in filtered_models_5}
+    selected_model_name  = st.selectbox("Sélectionnez un modèle", list(models_dict.keys()),key="selectbox_2")
+    selected_model = models_dict[selected_model_name]
+
+     # Afficher l'URL de l'API et le modèle sélectionné
+    st.markdown(f"Modèle sélectionné : {selected_model}")
+
+enable2 = st.checkbox("Launch video capturing",key="checkbox_2")
+
+if enable2:
+    c = st.columns(2)
+    with c[0].container():
+        image = camera_input_live(key="camera_input_2")
+
+        if image:
+            # Image treatment to display back to the user with target rectangle
+            bytes_data = image.getvalue()
+            input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+            colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
+            flipped_img = cv2.flip(colored_img, 1)
+            annot_img = cv2.rectangle(flipped_img, (200,200), (500,500), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+            st.image(annot_img)
+
+    if c[1].button(f"Evaluate with : {selected_model}!"):
+        # Une fois que l'utilisateur appuie sur "Evaluate", l'image traitée est envoyée à l'API pour prédiction
+        cropped_img = cv2.flip(colored_img[200:500,200:500],1)
+        height = 128
+        width = 128
+        std_dim = (height, width)
+        resized_img = cv2.resize(cropped_img, std_dim)
+
+        if image is not None:
+            c[1].image(resized_img, caption="Image téléchargée", use_container_width=True)
+            # !! L'image envoyée à l'API est l'image brute (non traitée par OpenCV)
+
+            response = requests.post(f"{url_get_image_prediction_from_gcp_model_5}?model_name={selected_model}", files={"img": image} )
+
+            if response.status_code == 200:
+                data = response.json()
+                c[1].success(f"Signe prédit : {data['prediction']}")
+                proba = round(max(data['probabilities'][0])*100,2)
+                c[1].success(f"Probabilité : {proba} %")
+            else:
+                st.error(f"Erreur API : {response.status_code}, {response.text}")
+
+
+
+
+##### FULL CLASSES  #####
+
+st.title("DeepSign — Upload via webcam et OpenCV et predict avec le model GCP Full CLASSES")
+st.markdown(f"Working with {url_get_image_prediction_from_gcp_model_full}")
+
+
+filtered_models_full = [m for m in all_gcp_models if "fullclasses/" in m and m.endswith(".keras")]
+
+
+if filtered_models_full:
+
+    models_dict = {m.split('/')[-1]: m for m in filtered_models_full}
+    selected_model_name  = st.selectbox("Sélectionnez un modèle", list(models_dict.keys()),key="selectbox_3")
+    selected_model = models_dict[selected_model_name]
+
+     # Afficher l'URL de l'API et le modèle sélectionné
+    st.markdown(f"Modèle sélectionné : {selected_model}")
+
+enable2 = st.checkbox("Launch video capturing",key="checkbox_3")
+
+if enable2:
+    c = st.columns(2)
+    with c[0].container():
+        image = camera_input_live(key="camera_input_3")
+
+        if image:
+            # Image treatment to display back to the user with target rectangle
+            bytes_data = image.getvalue()
+            input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+            colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
+            flipped_img = cv2.flip(colored_img, 1)
+            annot_img = cv2.rectangle(flipped_img, (200,200), (500,500), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+            st.image(annot_img)
+
+    if c[1].button(f"Evaluate with : {selected_model}!"):
+        # Une fois que l'utilisateur appuie sur "Evaluate", l'image traitée est envoyée à l'API pour prédiction
+        cropped_img = cv2.flip(colored_img[200:500,200:500],1)
+        height = 128
+        width = 128
+        std_dim = (height, width)
+        resized_img = cv2.resize(cropped_img, std_dim)
+
+        if image is not None:
+            c[1].image(resized_img, caption="Image téléchargée", use_container_width=True)
+            # !! L'image envoyée à l'API est l'image brute (non traitée par OpenCV)
+
+            response = requests.post(f"{url_get_image_prediction_from_gcp_model_full}?model_name={selected_model}", files={"img": image} )
+
+            if response.status_code == 200:
+                data = response.json()
+                c[1].success(f"Signe prédit : {data['prediction']}")
+                proba = round(max(data['probabilities'][0])*100,2)
+                c[1].success(f"Probabilité : {proba} %")
+            else:
+                st.error(f"Erreur API : {response.status_code}, {response.text}")
+
+
+
+
+######################################################
+#       OLD
+######################################################
+
 
 
 # TODO: Add some titles, introduction, ...
@@ -85,12 +221,12 @@ if uploaded_image is not None:
 st.title("DeepSign — Upload via webcam et OpenCV et récupération des infos")
 st.markdown(f"Working with {url_get_image_prediction}")
 
-enable = st.checkbox("Launch video capturing")
+enable = st.checkbox("Launch video capturing",key="checkbox_1")
 
 if enable:
     c = st.columns(2)
     with c[0].container():
-        image = camera_input_live()
+        image = camera_input_live(key="camera_input_1")
 
         if image:
             # Image treatment to display back to the user with target rectangle
