@@ -12,5 +12,6 @@ pg = st.navigation(
     )
 
 
+
 st.set_page_config(page_title="Data manager", page_icon=":material/edit:")
 pg.run()
