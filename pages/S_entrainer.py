@@ -5,6 +5,8 @@ import numpy as np
 import cv2
 from camera_input_live import camera_input_live
 
+
+
 # Define the base URI of the API
 #   - Potential sources are in `.streamlit/secrets.toml` or in the Secrets section
 #     on Streamlit Cloud
@@ -26,7 +28,11 @@ url_get_image_prediction = BASE_URI + 'get_image_prediction'
 # Just displaying the source for the API. Remove this in your final version.
 st.markdown(f"Working with {url}")
 
-
+# Define OpenCV box vertices
+X1 = 100
+X2 = 600
+Y1 = 25
+Y2 = 525
 
 ######################################################
 #        SELECT AND USE MODEL FROM GCP
@@ -57,43 +63,29 @@ if filtered_models_5:
      # Afficher l'URL de l'API et le modèle sélectionné
     st.markdown(f"Modèle sélectionné : {selected_model}")
 
-enable2 = st.checkbox("Launch video capturing",key="checkbox_2")
+enable_5 = st.checkbox("Launch video capturing",key="checkbox_2")
 
-if enable2:
-    c = st.columns(2)
-    with c[0].container():
-        image = camera_input_live(key="camera_input_2")
+if enable_5:
+    image = camera_input_live(key="camera_input_2")
 
-        if image:
-            # Image treatment to display back to the user with target rectangle
-            bytes_data = image.getvalue()
-            input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-            colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
-            flipped_img = cv2.flip(colored_img, 1)
-            annot_img = cv2.rectangle(flipped_img, (200,200), (500,500), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
-            st.image(annot_img)
+    if image:
+        # Image treatment to display back to the user with target rectangle
+        bytes_data = image.getvalue()
+        input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+        colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
+        flipped_img = cv2.flip(colored_img, 1)
+        annot_img = cv2.rectangle(flipped_img, (X1,Y1), (X2,Y2), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+        st.image(annot_img)
 
-    if c[1].button(f"Evaluate with : {selected_model}!"):
-        # Une fois que l'utilisateur appuie sur "Evaluate", l'image traitée est envoyée à l'API pour prédiction
-        cropped_img = cv2.flip(colored_img[200:500,200:500],1)
-        height = 128
-        width = 128
-        std_dim = (height, width)
-        resized_img = cv2.resize(cropped_img, std_dim)
+        response = requests.post(f"{url_get_image_prediction_from_gcp_model_5}?model_name={selected_model}", files={"img": image} )
 
-        if image is not None:
-            c[1].image(resized_img, caption="Image téléchargée", use_container_width=True)
-            # !! L'image envoyée à l'API est l'image brute (non traitée par OpenCV)
-
-            response = requests.post(f"{url_get_image_prediction_from_gcp_model_5}?model_name={selected_model}", files={"img": image} )
-
-            if response.status_code == 200:
-                data = response.json()
-                c[1].success(f"Signe prédit : {data['prediction']}")
-                proba = round(max(data['probabilities'][0])*100,2)
-                c[1].success(f"Probabilité : {proba} %")
-            else:
-                st.error(f"Erreur API : {response.status_code}, {response.text}")
+        if response.status_code == 200:
+            data = response.json()
+            st.success(f"Signe prédit : {data['prediction']}")
+            proba = round(max(data['probabilities'][0])*100,2)
+            st.success(f"Probabilité : {proba} %")
+        else:
+            st.error(f"Erreur API : {response.status_code}, {response.text}")
 
 
 
@@ -116,43 +108,29 @@ if filtered_models_full:
      # Afficher l'URL de l'API et le modèle sélectionné
     st.markdown(f"Modèle sélectionné : {selected_model}")
 
-enable2 = st.checkbox("Launch video capturing",key="checkbox_3")
+enable_full = st.checkbox("Launch video capturing",key="checkbox_3")
 
-if enable2:
-    c = st.columns(2)
-    with c[0].container():
-        image = camera_input_live(key="camera_input_3")
+if enable_full:
+    image = camera_input_live(key="camera_input_3")
 
-        if image:
-            # Image treatment to display back to the user with target rectangle
-            bytes_data = image.getvalue()
-            input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-            colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
-            flipped_img = cv2.flip(colored_img, 1)
-            annot_img = cv2.rectangle(flipped_img, (200,200), (500,500), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
-            st.image(annot_img)
+    if image:
+        # Image treatment to display back to the user with target rectangle
+        bytes_data = image.getvalue()
+        input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+        colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
+        flipped_img = cv2.flip(colored_img, 1)
+        annot_img = cv2.rectangle(flipped_img, (X1,Y1), (X2,Y2), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+        st.image(annot_img)
 
-    if c[1].button(f"Evaluate with : {selected_model}!"):
-        # Une fois que l'utilisateur appuie sur "Evaluate", l'image traitée est envoyée à l'API pour prédiction
-        cropped_img = cv2.flip(colored_img[200:500,200:500],1)
-        height = 128
-        width = 128
-        std_dim = (height, width)
-        resized_img = cv2.resize(cropped_img, std_dim)
+        response = requests.post(f"{url_get_image_prediction_from_gcp_model_full}?model_name={selected_model}", files={"img": image} )
 
-        if image is not None:
-            c[1].image(resized_img, caption="Image téléchargée", use_container_width=True)
-            # !! L'image envoyée à l'API est l'image brute (non traitée par OpenCV)
-
-            response = requests.post(f"{url_get_image_prediction_from_gcp_model_full}?model_name={selected_model}", files={"img": image} )
-
-            if response.status_code == 200:
-                data = response.json()
-                c[1].success(f"Signe prédit : {data['prediction']}")
-                proba = round(max(data['probabilities'][0])*100,2)
-                c[1].success(f"Probabilité : {proba} %")
-            else:
-                st.error(f"Erreur API : {response.status_code}, {response.text}")
+        if response.status_code == 200:
+            data = response.json()
+            st.success(f"Signe prédit : {data['prediction']}")
+            proba = round(max(data['probabilities'][0])*100,2)
+            st.success(f"Probabilité : {proba} %")
+        else:
+            st.error(f"Erreur API : {response.status_code}, {response.text}")
 
 
 
@@ -224,36 +202,24 @@ st.markdown(f"Working with {url_get_image_prediction}")
 enable = st.checkbox("Launch video capturing",key="checkbox_1")
 
 if enable:
-    c = st.columns(2)
-    with c[0].container():
-        image = camera_input_live(key="camera_input_1")
 
-        if image:
-            # Image treatment to display back to the user with target rectangle
-            bytes_data = image.getvalue()
-            input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-            colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
-            flipped_img = cv2.flip(colored_img, 1)
-            annot_img = cv2.rectangle(flipped_img, (200,200), (500,500), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
-            st.image(annot_img)
+    image = camera_input_live(key="camera_input_1")
 
-    if c[1].button("Evaluate!"):
-        # Once the user hits "Evaluate" button, the "pause" image is treated and sent to API
-        cropped_img = cv2.flip(colored_img[200:500,200:500],1)
-        height = 128
-        width = 128
-        std_dim = (height, width)
-        resized_img = cv2.resize(cropped_img, std_dim)
+    if image:
+        # Image treatment to display back to the user with target rectangle
+        bytes_data = image.getvalue()
+        input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+        colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
+        flipped_img = cv2.flip(colored_img, 1)
+        annot_img = cv2.rectangle(flipped_img, (X1,Y1), (X2,Y2), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+        st.image(annot_img)
 
-        if image is not None:
-            c[1].image(resized_img, caption="Image téléchargée", use_container_width=True)
-            # !! The image sent to the API is the "raw" (not treated by OpenCV)
-            response = requests.post(url_get_image_prediction, files={"img": image})
+        response = requests.post(url_get_image_prediction, files={"img": image})
 
-            if response.status_code == 200:
-                data = response.json()
-                c[1].success(f"Signe prédit : {data['prediction']}")
-                proba = round(max(data['probabilities'][0])*100,2)
-                c[1].success(f"Probabilité : {proba} %")
-            else:
-                c[1].error(f"Erreur API : {response.status_code}")
+        if response.status_code == 200:
+            data = response.json()
+            st.success(f"Signe prédit : {data['prediction']}")
+            proba = round(max(data['probabilities'][0])*100,2)
+            st.success(f"Probabilité : {proba} %")
+        else:
+            st.error(f"Erreur API : {response.status_code}")
