@@ -26,6 +26,11 @@ url_get_image_prediction = BASE_URI + 'get_image_prediction'
 # Just displaying the source for the API. Remove this in your final version.
 st.markdown(f"Working with {url}")
 
+# Define OpenCV box vertices
+X1 = 100
+X2 = 600
+Y1 = 25
+Y2 = 525
 
 
 ######################################################
@@ -57,9 +62,9 @@ if filtered_models_5:
      # Afficher l'URL de l'API et le modèle sélectionné
     st.markdown(f"Modèle sélectionné : {selected_model}")
 
-enable2 = st.checkbox("Launch video capturing",key="checkbox_2")
+enable_5 = st.checkbox("Launch video capturing",key="checkbox_2")
 
-if enable2:
+if enable_5:
     c = st.columns(2)
     with c[0].container():
         image = camera_input_live(key="camera_input_2")
@@ -70,12 +75,12 @@ if enable2:
             input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
             colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
             flipped_img = cv2.flip(colored_img, 1)
-            annot_img = cv2.rectangle(flipped_img, (200,200), (500,500), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+            annot_img = cv2.rectangle(flipped_img, (X1,Y1), (X2,Y2), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
             st.image(annot_img)
 
     if c[1].button(f"Evaluate with : {selected_model}!"):
         # Une fois que l'utilisateur appuie sur "Evaluate", l'image traitée est envoyée à l'API pour prédiction
-        cropped_img = cv2.flip(colored_img[200:500,200:500],1)
+        cropped_img = cv2.flip(colored_img[Y1:Y2,X1:X2],1)
         height = 128
         width = 128
         std_dim = (height, width)
@@ -116,9 +121,9 @@ if filtered_models_full:
      # Afficher l'URL de l'API et le modèle sélectionné
     st.markdown(f"Modèle sélectionné : {selected_model}")
 
-enable2 = st.checkbox("Launch video capturing",key="checkbox_3")
+enable_full = st.checkbox("Launch video capturing",key="checkbox_3")
 
-if enable2:
+if enable_full:
     c = st.columns(2)
     with c[0].container():
         image = camera_input_live(key="camera_input_3")
@@ -129,12 +134,12 @@ if enable2:
             input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
             colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
             flipped_img = cv2.flip(colored_img, 1)
-            annot_img = cv2.rectangle(flipped_img, (200,200), (500,500), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+            annot_img = cv2.rectangle(flipped_img, (X1,Y1), (X2,Y2), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
             st.image(annot_img)
 
     if c[1].button(f"Evaluate with : {selected_model}!"):
         # Une fois que l'utilisateur appuie sur "Evaluate", l'image traitée est envoyée à l'API pour prédiction
-        cropped_img = cv2.flip(colored_img[200:500,200:500],1)
+        cropped_img = cv2.flip(colored_img[Y1:Y2,X1:X2],1)
         height = 128
         width = 128
         std_dim = (height, width)
@@ -234,12 +239,12 @@ if enable:
             input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
             colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
             flipped_img = cv2.flip(colored_img, 1)
-            annot_img = cv2.rectangle(flipped_img, (200,200), (500,500), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+            annot_img = cv2.rectangle(flipped_img, (X1,Y1), (X2,Y2), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
             st.image(annot_img)
 
     if c[1].button("Evaluate!"):
         # Once the user hits "Evaluate" button, the "pause" image is treated and sent to API
-        cropped_img = cv2.flip(colored_img[200:500,200:500],1)
+        cropped_img = cv2.flip(colored_img[Y1:Y2,X1:X2],1)
         height = 128
         width = 128
         std_dim = (height, width)
