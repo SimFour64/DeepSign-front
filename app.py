@@ -1,9 +1,11 @@
 import streamlit as st
 
+# Definition des pages
 Le_Projet = st.Page("pages/Le_Projet.py", title="Le Projet", icon="👋")
 apprendre = st.Page("pages/Apprendre_les_signes.py", title="Apprendre les signes", icon="📋")
 entrainer = st.Page("pages/S_entrainer.py", title="S'entrainer", icon="🎮")
 
+# Hierarchie des pages
 pg = st.navigation(
     {
     "à propos":[Le_Projet],
@@ -11,7 +13,5 @@ pg = st.navigation(
     }
     )
 
-
-
-st.set_page_config(page_title="Data manager", page_icon=":material/edit:")
+# st.set_page_config(page_title="Data manager", page_icon=":material/edit:")
 pg.run()
