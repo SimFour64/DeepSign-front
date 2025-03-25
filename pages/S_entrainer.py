@@ -5,8 +5,6 @@ import numpy as np
 import cv2
 from camera_input_live import camera_input_live
 
-
-
 # Define the base URI of the API
 #   - Potential sources are in `.streamlit/secrets.toml` or in the Secrets section
 #     on Streamlit Cloud
@@ -33,6 +31,7 @@ X1 = 100
 X2 = 600
 Y1 = 25
 Y2 = 525
+
 
 ######################################################
 #        SELECT AND USE MODEL FROM GCP
