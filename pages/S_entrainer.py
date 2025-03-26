@@ -27,10 +27,10 @@ url_get_image_prediction = BASE_URI + 'get_image_prediction'
 st.markdown(f"Working with {url}")
 
 # Define OpenCV box vertices
-X1 = 100
-X2 = 600
-Y1 = 25
-Y2 = 525
+X1 = 150
+X2 = 550
+Y1 = 100
+Y2 = 500
 
 
 ######################################################
