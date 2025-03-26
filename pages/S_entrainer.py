@@ -39,67 +39,60 @@ st.title(" :grey[Entraine toi a reproduire un signe]")
 st.image("media/Training_4_signs.png", use_container_width=True)
 
 
-# le Selecteur
-col_1, col_2, col_3 = st.columns(3)
+# Selecteur
+col_1, col_2, col_3 = st.columns([0.1,0.8,0.1])
 
 with col_2:
-    options = ["C", "2", "Hello", "Please"]
+    options =  ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','Bye','Good','Good morning','Hello','Little bit','No','Pardon','Please','Project','Whats up','Yes']
     selection = st.pills("Choisis un mot :", options, selection_mode="single", default = "C")
     if selection :
         st.markdown(f"Essaie de reproduire le <strong style=' color:#75E6A4 ' >{selection}</strong>.", unsafe_allow_html=True)
 
-
-######################################################
-#        SELECT AND USE MODEL FROM GCP
-######################################################
-
-
-def get_available_models():
-    response = requests.get(f"{BASE_URI}/models")  # Endpoint pour récupérer les modèles
-    if response.status_code == 200:
-        return response.json()['models']
-    else:
-        st.error(f"Erreur lors de la récupération des modèles : {response.status_code}")
-        return []
-
-
-# st.checkbox("Lancer la camera",key="checkbox_3")
-
-
-image = camera_input_live(key="camera_input_3")
-
 #####################################################################
 # affichage des deux vignettes Vide/Response
 #####################################################################
-st.markdown("Place ta main dans le carré bleu 🎬")
+
+st.divider()
+
+st.markdown("Place ta main dans le cadre vert 🎬")
+
 col_Video, col_Response = st.columns(2)
 
-with col_Video:
-    # Custom HTML for video with specific dimensions and background
-    # button =
+@st.fragment
+def capture_camera_input():
+    image = camera_input_live()
     if image:
         # Image treatment to display back to the user with target rectangle
         bytes_data = image.getvalue()
         input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
         colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
         flipped_img = cv2.flip(colored_img, 1)
-        annot_img = cv2.rectangle(flipped_img, (X1,Y1), (X2,Y2), (0,255,255), thickness=5, lineType=cv2.LINE_AA)
+        annot_img = cv2.rectangle(flipped_img, (X1,Y1), (X2,Y2), (117,230,164), thickness=5, lineType=cv2.LINE_AA)
         st.image(annot_img)
+    return image
 
-    response = requests.post(url_get_image_prediction_prod, files={"img": image} )
+with col_Video:
+    image = capture_camera_input()
 
 with col_Response:
-    if response.status_code == 200 :
-        data = response.json()
-        proba = round(max(data['probabilities'][0])*100,2)
-        if selection.lower() == data['prediction']:
-            st.image("media/Man_saying_OK.png")
-            st.success(f"Signe prédit : {data['prediction']}")
-            st.success(f"Probabilité : {proba} %")
-        else :
-            st.image("media/Woman_saying_NO.png")
-            st.error(f"Signe prédit : {data['prediction']}")
-            st.error(f"Probabilité : {proba} %")
-
-    else:
-        st.error(f"Erreur API : {response.status_code}, {response.text}")
+    if st.button("Evaluer !"):
+        response = requests.post(url_get_image_prediction_prod, files={"img": image} )
+        if response.status_code == 200 :
+            data = response.json()
+            proba = round(max(data['probabilities'][0])*100,2)
+            col_Retour_left, col_Retour_right = st.columns(2)
+            bytes_data = image.getvalue()
+            input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+            colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2GRAY)
+            image = colored_img[Y1:Y2,X1:X2]
+            col_Retour_left.image(image)
+            if selection.lower() == data['prediction']:
+                col_Retour_right.image("media/Man_saying_OK.png")
+                st.success(f"Signe prédit : {data['prediction']}")
+                st.success(f"Probabilité : {proba} %")
+            else :
+                col_Retour_right.image("media/Woman_saying_NO.png")
+                st.error(f"Signe prédit : {data['prediction']}")
+                st.error(f"Probabilité : {proba} %")
+        else:
+            st.error(f"Erreur API : {response.status_code}, {response.text}")
