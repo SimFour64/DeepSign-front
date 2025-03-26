@@ -53,4 +53,3 @@ elif genre == ("***Mots - Quelques mots de la vie courante***"):
 
     with col2:
         st.image(images_mots[selected_word], use_container_width=True)
-
