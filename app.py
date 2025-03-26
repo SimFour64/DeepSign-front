@@ -1,5 +1,15 @@
 import streamlit as st
 
+# Charger le CSS
+def local_css(file_name):
+    with open(file_name) as f:
+        css_code = f.read()
+    st.markdown(f'<style>{css_code}</style>', unsafe_allow_html=True)
+
+# Appliquer le CSS
+local_css("style.css")
+
+
 # Definition des pages
 Le_Projet = st.Page("pages/Le_Projet.py", title="Le Projet", icon="👋")
 apprendre = st.Page("pages/Apprendre_les_signes.py", title="Apprendre les signes", icon="📋")
