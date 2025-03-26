@@ -39,7 +39,7 @@ with st.expander("**L'équipe**", icon="👯"):
     people[0].markdown("**Veronika Litvinova**")
     name_0 = people[0].columns([0.4,0.2,0.4])
     name_0[1].markdown("[![Foo](https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg)](https://www.linkedin.com/in/veronikalitvinova/)")
-    people[1].image("media/Cyril.jpg")
+    people[1].image("media/Cyril2.PNG")
     people[1].markdown("**Cyril Buffard**")
     name_1 = people[1].columns([0.4,0.2,0.4])
     name_1[1].markdown("[![Foo](https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg)](https://www.linkedin.com/in/cyril-buffard/)")
