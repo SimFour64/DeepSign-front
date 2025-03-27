@@ -14,10 +14,10 @@ import random
 #     (shortcuts are included in Makefile). By default it takes the cloud API url
 
 #TODO
-# if 'API_URI' in os.environ:
-#     BASE_URI = st.secrets[os.environ.get('API_URI')]
-# else:
-BASE_URI = st.secrets['cloud_api_uri']
+if 'API_URI' in os.environ:
+    BASE_URI = st.secrets[os.environ.get('API_URI')]
+else:
+    BASE_URI = st.secrets['cloud_api_uri']
 # Add a '/' at the end if it's not there
 BASE_URI = BASE_URI if BASE_URI.endswith('/') else BASE_URI + '/'
 # Define the url to be used by requests.get to get a prediction (adapt if needed)
@@ -31,9 +31,9 @@ Y1 = 100
 Y2 = 500
 
 # Liste des mots pour le quiz
-#TODO
-#quiz_words =  ['0','1','2','3','4','5','6','7','8','9','a','b','bye','c','d','e','good','good morning','hello','little bit','no','pardon','please','project','whats up','yes']
-quiz_words =  ['2','2','2','2','2','2','2','2','2']
+
+quiz_words =  ['0','1','2','3','4','5','6','7','8','9','a','b','bye','c','d','e','good','good morning','hello','little bit','no','pardon','please','project','whats up','yes']
+#quiz_words =  ['1','2','3','4','5','1','2','3']
 
 
 # Initialiser les états du jeu
@@ -44,6 +44,8 @@ if 'quiz_state' not in st.session_state:
     st.session_state.results = [None] * 5
     st.session_state.shuffled_words = random.sample(quiz_words, 5)
 
+
+
 ######################################################
 #       Up Page
 ######################################################
@@ -53,11 +55,27 @@ st.markdown("""
 **Règles du jeu :**
 - 5 mots à deviner.
 - À chaque étape, un mot à reproduire s’affiche.
-- Utilise ta caméra pour montrer ton signe et clique sur capturer.
-- Tu as deux tentatives pour chaque mot.
+- Utilise ta caméra pour montrer ton signe et clique sur Evaluer.
 - Une coche verte ou une croix rouge apparaîtra selon ta réussite.
 """)
+######################
+# Affichage progression
+######################
 
+st.markdown("### Progression du quiz :")
+cols = st.columns(5)
+for i, col in enumerate(cols):
+    word = st.session_state.shuffled_words[i]
+    if st.session_state.results[i] == "ok":
+        col.image("media/valid.png", width=40)
+        col.markdown(f"**{word.capitalize()}**")
+        col.image(f"media/signs/{word}.png", width=60)
+    elif st.session_state.results[i] == "fail":
+        col.image("media/wrong.png", width=40)
+        col.markdown(f"**{word.capitalize()}**")
+        col.image(f"media/signs/{word}.png", width=60)
+    else:
+        col.image("media/question_mark.png", width=40)
 
 # Afficher bouton de démarrage
 if st.session_state.quiz_state == "waiting":
@@ -67,114 +85,107 @@ if st.session_state.quiz_state == "waiting":
         st.session_state.attempts = 0
         st.session_state.results = [None] * 5
         st.session_state.shuffled_words = random.sample(quiz_words, 5)
-
         st.rerun()
-# Afficher bouton de démarrage
+
 if st.session_state.quiz_state == "replay":
     st.session_state.quiz_state = "in_progress"
     st.session_state.current_word_index = 0
     st.session_state.attempts = 0
     st.session_state.results = [None] * 5
     st.session_state.shuffled_words = random.sample(quiz_words, 5)
-
     st.rerun()
 
+
 # Partie active du quiz
+if "last_prediction" not in st.session_state:
+    st.session_state.last_prediction = None
+if "awaiting_next" not in st.session_state:
+    st.session_state.awaiting_next = False
+
 elif st.session_state.quiz_state == "in_progress":
 
-    ######################
-    # Affichage progression
-    ######################
-
-    st.markdown("### Progression du quiz :")
-    cols = st.columns(5)
-    for i, col in enumerate(cols):
-        if st.session_state.results[i] == "ok":
-            col.image("media/valid.png", width=40)
-            col.markdown(f"**{st.session_state.shuffled_words[i].capitalize()}**")
-        elif st.session_state.results[i] == "fail":
-            col.image("media/wrong.png", width=40)
-            col.markdown(f"**{st.session_state.shuffled_words[i].capitalize()}**")
-        else:
-            col.image("media/question_mark.png", width=40)
-
-    ######################
-    # Mot à deviner
-    ######################
-
     current_word = st.session_state.shuffled_words[st.session_state.current_word_index]
-    st.markdown(f"### Mot à reproduire : :green[**{current_word.upper()}**]")
-    st.write("Place ta main dans le cadre vert 🎬")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown(f"### Mot à reproduire : :green[**{current_word.upper()}**]")
+        st.write("Place ta main dans le cadre vert 🎬")
 
-    ######################
-    # Capture & prédiction
-    ######################
 
     col_Video, col_Response = st.columns(2)
+
     @st.fragment
     def capture_camera_input():
         image = camera_input_live()
         if image:
-            # Image treatment to display back to the user with target rectangle
             bytes_data = image.getvalue()
             input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
             colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
             flipped_img = cv2.flip(colored_img, 1)
-            annot_img = cv2.rectangle(flipped_img, (X1,Y1), (X2,Y2), (117,230,164), thickness=5, lineType=cv2.LINE_AA)
+            annot_img = cv2.rectangle(flipped_img, (X1, Y1), (X2, Y2), (117, 230, 164), 5)
             st.image(annot_img)
         return image
 
-    @st.fragment
-    def display_true():
-        col_Retour_right.image("media/Man_saying_OK.png")
-        st.success(f"✅ Bonne réponse : {prediction}")
-        st.success(f"Probabilité : {proba} %")
-        st.session_state.results[st.session_state.current_word_index] = "ok"
-        st.session_state.current_word_index += 1
-        st.session_state.attempts = 0
-
-    @st.fragment
-    def display_false():
-        col_Retour_right.image("media/Woman_saying_NO.png")
-        st.error(f"❌ Mauvais signe : {prediction}")
-        st.error(f"Probabilité : {proba} %")
-        st.session_state.attempts += 1
-        if st.session_state.attempts >= 2:
-            st.session_state.results[st.session_state.current_word_index] = "fail"
-            st.session_state.current_word_index += 1
-            st.session_state.attempts = 0
-
     with col_Video:
+        if "captured_image" not in st.session_state:
+            st.session_state.captured_image = None
+
         image = capture_camera_input()
+        if image:
+            st.session_state.captured_image = image
 
     with col_Response:
-        if st.session_state.attempts >= 2 or st.session_state.results[st.session_state.current_word_index] == "ok":
-            if st.button("Suivant ->"):
-                st.rerun()
+        if not st.session_state.awaiting_next:
+            if st.button("Evaluer !") and st.session_state.captured_image:
+                response = requests.post(url_get_image_prediction_prod, files={"img": st.session_state.captured_image})
+                if response.status_code == 200:
+                    data = response.json()
+                    proba = round(max(data['probabilities'][0]) * 100, 2)
+                    prediction = data['prediction']
 
-        elif st.button("Evaluer !"):
-            response = requests.post(url_get_image_prediction_prod, files={"img": image})
-            if response.status_code == 200:
-                data = response.json()
-                proba = round(max(data['probabilities'][0]) * 100, 2)
-                col_Retour_left, col_Retour_right = st.columns(2)
-                bytes_data = image.getvalue()
-                input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-                colored_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2GRAY)
-                image = colored_img[Y1:Y2,X1:X2]
-                col_Retour_left.image(image)
-                prediction = data['prediction']
-                if prediction.lower() == current_word.lower():
-                    display_true()
+                    st.session_state.last_prediction = {
+                        "prediction": prediction,
+                        "proba": proba,
+                        "image": st.session_state.captured_image
+                    }
+
+                    if prediction.lower() == current_word.lower():
+                        st.session_state.results[st.session_state.current_word_index] = "ok"
+                    else:
+                        st.session_state.results[st.session_state.current_word_index] = "fail"
+
+                    st.session_state.awaiting_next = True
+                    st.rerun()
                 else:
-                    display_false()
+                    st.error(f"Erreur API : {response.status_code}, {response.text}")
 
-                # Fin de quiz
+        else:
+            pred = st.session_state.last_prediction
+            if st.button("➡️ Mot suivant"):
+                st.session_state.current_word_index += 1
+                st.session_state.attempts = 0
+                st.session_state.last_prediction = None
+                st.session_state.awaiting_next = False
                 if st.session_state.current_word_index >= len(st.session_state.shuffled_words):
                     st.session_state.quiz_state = "done"
-                #st.rerun()
-            else:
-                st.error(f"Erreur API : {response.status_code}, {response.text}")
+
+                st.rerun()
+            if pred:
+                col_Retour_left, col_Retour_right = st.columns(2)
+                bytes_data = pred['image'].getvalue()
+                input_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+                gray_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2GRAY)
+                cropped_img = gray_img[Y1:Y2, X1:X2]
+                col_Retour_left.image(cropped_img)
+
+                # Résultat
+                if pred['prediction'].lower() == current_word.lower():
+                    col_Retour_right.image("media/Man_saying_OK.png")
+                    st.success(f"✅ Bonne réponse : {pred['prediction']}")
+                else:
+                    col_Retour_right.image("media/Woman_saying_NO.png")
+                    st.error(f"❌ Mauvais signe : {pred['prediction']}")
+                st.markdown(f"**Probabilité : {pred['proba']}%**")
+
 
 # Fin du quiz
 elif st.session_state.quiz_state == "done":

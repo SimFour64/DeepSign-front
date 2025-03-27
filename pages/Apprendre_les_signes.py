@@ -33,17 +33,17 @@ elif genre == ("***Mots - Quelques mots de la vie courante***"):
     # st.write("tu as choisis les expressions courantes")
     mots = ["Hello","Yes","No","Good","Good Morning","Bye","Pardon","Little bit","Please","Project","whats up"]
     images_mots = {
-        "Hello": "media/signs/hello.png",
-        "Yes": "media/signs/yes.png",
-        "No": "media/signs/no.png",
-        "Pardon": "media/signs/pardon.png",
-        "Little bit": "media/signs/littlebit.png",
-        "Please": "media/signs/please.png",
-        "Project": "media/signs/project.png",
-        "whats up": "media/signs/whatup.png",
-        "Good": "media/signs/good.png",
-        "Good Morning": "media/signs/goodmorning.png",
-        "Bye": "media/signs/bye.png"
+        "Hello": "media/learn/hello.png",
+        "Yes": "media/learn/yes.png",
+        "No": "media/learn/no.png",
+        "Pardon": "media/learn/pardon.png",
+        "Little bit": "media/learn/littlebit.png",
+        "Please": "media/learn/please.png",
+        "Project": "media/learn/project.png",
+        "whats up": "media/learn/whatsup.png",
+        "Good": "media/learn/good.png",
+        "Good Morning": "media/learn/goodmorning.png",
+        "Bye": "media/learn/bye.png"
     }
     col1, col2 = st.columns([1, 2])
     with col1:
