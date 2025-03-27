@@ -35,7 +35,6 @@ Y2 = 500
 #       Up Page
 ######################################################
 st.title(" :grey[Entraine toi a reproduire un signe]")
-# st.markdown("<p style='font-size:30px'align='right'>🎬</p>", unsafe_allow_html=True)
 st.image("media/Training_4_signs.png", use_container_width=True)
 
 
@@ -93,11 +92,9 @@ with col_Response:
             if selection.lower() == data['prediction']:
                 col_Retour_right.image("media/Man_saying_OK.png")
                 st.success(f"✅ Bonne réponse : {data['prediction']}")
-                st.success(f"Probabilité : {proba} %")
             else :
                 col_Retour_right.image("media/Woman_saying_NO.png")
-
                 st.error(f"❌ Mauvais signe : {data['prediction']}")
-                st.error(f"Probabilité : {proba} %")
+            st.markdown(f"**Probabilité** : {proba} %")
         else:
             st.error(f"Erreur API : {response.status_code}, {response.text}")

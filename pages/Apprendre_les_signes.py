@@ -1,9 +1,9 @@
 import streamlit as st
 
-st.title(" :grey[Explore le language des signes américain]")
+st.title(" :grey[Explore la langue des signes américain]")
 
 st.markdown("""
-Bienvenue sur cette page interactive pour apprendre les bases du langage des signes américain (ASL) !
+Bienvenue sur cette page interactive pour apprendre les bases de la langue des signes américain (ASL) !
 Choisis une catégorie et découvre visuellement les signes essentiels.
 """)
 
