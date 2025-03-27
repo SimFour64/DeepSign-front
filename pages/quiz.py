@@ -14,10 +14,10 @@ import random
 #     (shortcuts are included in Makefile). By default it takes the cloud API url
 
 #TODO
-# if 'API_URI' in os.environ:
-#     BASE_URI = st.secrets[os.environ.get('API_URI')]
-# else:
-BASE_URI = st.secrets['cloud_api_uri']
+if 'API_URI' in os.environ:
+    BASE_URI = st.secrets[os.environ.get('API_URI')]
+else:
+    BASE_URI = st.secrets['cloud_api_uri']
 # Add a '/' at the end if it's not there
 BASE_URI = BASE_URI if BASE_URI.endswith('/') else BASE_URI + '/'
 # Define the url to be used by requests.get to get a prediction (adapt if needed)
@@ -31,9 +31,9 @@ Y1 = 100
 Y2 = 500
 
 # Liste des mots pour le quiz
-#TODO
-#quiz_words =  ['0','1','2','3','4','5','6','7','8','9','a','b','bye','c','d','e','good','good morning','hello','little bit','no','pardon','please','project','whats up','yes']
-quiz_words =  ['1','2','3','4','5','0','1','2','3']
+
+quiz_words =  ['0','1','2','3','4','5','6','7','8','9','a','b','bye','c','d','e','good','good morning','hello','little bit','no','pardon','please','project','whats up','yes']
+#quiz_words =  ['1','2','3','4','5','1','2','3']
 
 
 # Initialiser les états du jeu
@@ -68,11 +68,11 @@ for i, col in enumerate(cols):
     word = st.session_state.shuffled_words[i]
     if st.session_state.results[i] == "ok":
         col.image("media/valid.png", width=40)
-        col.markdown(f"<div style='text-align: center; font-weight: bold;'>{word.capitalize()}</div>", unsafe_allow_html=True)
+        col.markdown(f"**{word.capitalize()}**")
         col.image(f"media/signs/{word}.png", width=60)
     elif st.session_state.results[i] == "fail":
         col.image("media/wrong.png", width=40)
-        col.markdown(f"<div style='text-align: center; font-weight: bold;'>{word.capitalize()}</div>", unsafe_allow_html=True)
+        col.markdown(f"**{word.capitalize()}**")
         col.image(f"media/signs/{word}.png", width=60)
     else:
         col.image("media/question_mark.png", width=40)
