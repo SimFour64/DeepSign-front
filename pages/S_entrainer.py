@@ -44,9 +44,13 @@ col_1, col_2, col_3 = st.columns([0.1,0.8,0.1])
 
 with col_2:
     options =  ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','Bye','Good','Good morning','Hello','Little bit','No','Pardon','Please','Project','Whats up','Yes']
-    selection = st.pills("Choisis un mot :", options, selection_mode="single", default = "C")
+    selection = st.pills("Choisis un mot :", options, selection_mode="single", default="1")
     if selection :
-        st.markdown(f"Essaie de reproduire le <strong style=' color:#75E6A4 ' >{selection}</strong>.", unsafe_allow_html=True)
+        col_selection = st.columns([0.2,0.3,0.3,0.2])
+        col_selection[1].markdown(f"#### Essaie de reproduire le <strong style=' color:#75E6A4 ' >{selection}</strong>", unsafe_allow_html=True)
+        img_path = f"media/signs/{selection.lower().replace(' ','')}.png"
+        col_selection[2].image(img_path, width=80)
+
 
 #####################################################################
 # affichage des deux vignettes Vide/Response
