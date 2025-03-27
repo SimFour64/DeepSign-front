@@ -88,11 +88,12 @@ with col_Response:
             col_Retour_left.image(image)
             if selection.lower() == data['prediction']:
                 col_Retour_right.image("media/Man_saying_OK.png")
-                st.success(f"Signe prédit : {data['prediction']}")
+                st.success(f"✅ Bonne réponse : {data['prediction']}")
                 st.success(f"Probabilité : {proba} %")
             else :
                 col_Retour_right.image("media/Woman_saying_NO.png")
-                st.error(f"Signe prédit : {data['prediction']}")
+
+                st.error(f"❌ Mauvais signe : {data['prediction']}")
                 st.error(f"Probabilité : {proba} %")
         else:
             st.error(f"Erreur API : {response.status_code}, {response.text}")
