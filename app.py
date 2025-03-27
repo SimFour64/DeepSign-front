@@ -19,8 +19,8 @@ quiz = st.Page("pages/quiz.py", title="Le Quiz des signes", icon="❓")
 # Hierarchie des pages
 pg = st.navigation(
     {
-    "à propos":[Le_Projet],
-    "commence à apprendre":[apprendre, entrainer,quiz]
+    "À propos":[Le_Projet],
+    "Commence à apprendre":[apprendre, entrainer,quiz]
     }
     )
 

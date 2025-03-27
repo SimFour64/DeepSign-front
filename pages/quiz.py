@@ -50,7 +50,7 @@ if 'quiz_state' not in st.session_state:
 #       Up Page
 ######################################################
 
-st.title(":grey[Quiz interactif — Langage des signes américain]")
+st.title(":grey[Quiz interactif — Langue des signes américaine]")
 st.markdown("""
 **Règles du jeu :**
 - 5 mots à deviner.
@@ -69,11 +69,11 @@ for i, col in enumerate(cols):
     if st.session_state.results[i] == "ok":
         col.image("media/valid.png", width=40)
         col.markdown(f"**{word.capitalize()}**")
-        col.image(f"media/signs/{word}.png", width=60)
+        col.image(f"media/signs/{word.replace(' ','')}.png", width=60)
     elif st.session_state.results[i] == "fail":
         col.image("media/wrong.png", width=40)
         col.markdown(f"**{word.capitalize()}**")
-        col.image(f"media/signs/{word}.png", width=60)
+        col.image(f"media/signs/{word.replace(' ','')}.png", width=60)
     else:
         col.image("media/question_mark.png", width=40)
 
@@ -184,7 +184,7 @@ elif st.session_state.quiz_state == "in_progress":
                 else:
                     col_Retour_right.image("media/Woman_saying_NO.png")
                     st.error(f"❌ Mauvais signe : {pred['prediction']}")
-                st.markdown(f"**Probabilité : {pred['proba']}%**")
+                st.markdown(f"**Probabilité** : {pred['proba']}%")
 
 
 # Fin du quiz
